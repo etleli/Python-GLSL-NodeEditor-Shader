@@ -3,9 +3,9 @@ from OpenGL.GL import shaders
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 import sys
+import traceback
 
-
-class GLSLCanvasWidget(QtOpenGL.QGLWidget):
+class OpenGLWidget(QtOpenGL.QGLWidget):
     def initializeGL(self):
         try:
             VERTEX_SHADER = shaders.compileShader("""
@@ -47,3 +47,11 @@ class GLSLCanvasWidget(QtOpenGL.QGLWidget):
             glViewport(0, 0, w, h)
         except Exception:
             traceback.print_exc()
+
+try:
+    app = QtWidgets.QApplication(sys.argv)
+    window = OpenGLWidget()
+    window.show()
+    app.exec_()
+except Exception:
+    traceback.print_exc()

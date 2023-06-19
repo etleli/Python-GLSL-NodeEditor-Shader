@@ -144,6 +144,7 @@ class ShaderEditorWindow(QMainWindow):
 
     def createGLSLCanvasDock(self):
         self.glslCanvasWidget = GLSLCanvasWidget()
+        self.glslCanvasWidget.setMinimumHeight(200)
 
         self.glslCanvasDock = QDockWidget("Shader Output")
         self.glslCanvasDock.setWidget(self.glslCanvasWidget)
