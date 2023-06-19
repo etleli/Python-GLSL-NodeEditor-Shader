@@ -1,3 +1,4 @@
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import sys, os
@@ -8,7 +9,7 @@ from nodeeditor.node_editor_window import NodeEditorWindow
 from nodeeditor.node_editor_widget import NodeEditorWidget
 from GLSLShader.glsl_canvas_widget import GLSLCanvasWidget
 
-class MDIWindow(QMainWindow):
+class ShaderEditorWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -40,18 +41,14 @@ class MDIWindow(QMainWindow):
         #
         # self.readSettings()
 
-        self.setWindowTitle("Calculator NodeEditor Example")
+        self.setWindowTitle("Shader Editor")
+
+        self.empty_icon = QIcon(".")
 
     def closeEvent(self, event):
-        self.mdiArea.closeAllSubWindows()
-        if self.mdiArea.currentSubWindow():
-            event.ignore()
-        else:
-            self.writeSettings()
-            event.accept()
-            # hacky fix for PyQt 5.14.x
-            import sys
-            sys.exit(0)
+        event.accept()
+        import sys
+        sys.exit(0)
 
     def createActions(self):
         # self.actNew = QAction('&New', self, shortcut='Ctrl+N', statusTip="Create new graph", triggered=self.onFileNew)
@@ -153,7 +150,3 @@ class MDIWindow(QMainWindow):
         self.glslCanvasDock.setFloating(False)
 
         self.addDockWidget(Qt.TopDockWidgetArea, self.glslCanvasDock)
-
-    # def setActiveSubWindow(self, window):
-    #     if window:
-    #         self.mdiArea.setActiveSubWindow(window)
