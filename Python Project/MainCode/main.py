@@ -1,20 +1,20 @@
 import os, sys
 import traceback
 
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QStyleFactory
 
 sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
 
-from MainCode.shader_editor__window import ShaderEditorWindow
+from MainCode.main_window import MainWindow
 
 if __name__ == '__main__':
     try:
         app = QApplication(sys.argv)
 
-        # print(QStyleFactory.keys())
+        print(QStyleFactory.keys())
         app.setStyle('Fusion')
 
-        window = ShaderEditorWindow()
+        window = MainWindow()
         window.show()
 
         sys.exit(app.exec_())

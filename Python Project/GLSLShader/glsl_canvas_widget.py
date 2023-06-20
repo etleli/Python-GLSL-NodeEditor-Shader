@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtOpenGL
+from PyQt5 import QtWidgets, QtOpenGL, QtCore
 from OpenGL.GL import shaders
 from OpenGL.GL import *
 from OpenGL.GLUT import *
@@ -6,6 +6,32 @@ import sys
 
 
 class GLSLCanvasWidget(QtOpenGL.QGLWidget):
+    def __init__(self, parent=None):
+        super(GLSLCanvasWidget, self).__init__(parent)
+        self.aspect_ratio = 1.0
+
+
+
+    def setCanvasSize(self, width, height):
+        self.aspect_ratio = width / height
+        self.updateGeometry()
+
+    def sizeHint(self):
+        # Override sizeHint to return a size that maintains the aspect ratio
+        width = super(GLSLCanvasWidget, self).sizeHint().width()
+        height = int(width / self.aspect_ratio)
+        return QtCore.QSize(width, height)
+
+    def resizeEvent(self, event):
+        size = event.size()
+        if size.height() != 0:
+            if size.width() / size.height() > self.aspect_ratio:
+                size.setWidth(int(size.height() * self.aspect_ratio))
+            else:
+                size.setHeight(int(size.width() / self.aspect_ratio))
+        self.resize(size)
+        super().resizeEvent(event)
+
     def initializeGL(self):
         try:
             VERTEX_SHADER = shaders.compileShader("""
@@ -18,13 +44,19 @@ class GLSLCanvasWidget(QtOpenGL.QGLWidget):
 
             FRAGMENT_SHADER = shaders.compileShader("""
             #version 330
+            uniform vec2 windowSize;
             out vec4 fragColor;
             void main() {
-                fragColor = vec4(gl_FragCoord.x/640.0, gl_FragCoord.y/480.0, 0.5, 1.0);
+                vec2 normalizedCoords = gl_FragCoord.xy / windowSize;
+                fragColor = vec4(normalizedCoords.x, normalizedCoords.y, 0.5, 1.0);
             }
+
             """, GL_FRAGMENT_SHADER)
 
             self.shader = shaders.compileProgram(VERTEX_SHADER, FRAGMENT_SHADER)
+
+            # Get the location of the windowSize uniform variable
+            self.windowSizeLocation = glGetUniformLocation(self.shader, "windowSize")
         except Exception:
             traceback.print_exc()
 
@@ -32,6 +64,11 @@ class GLSLCanvasWidget(QtOpenGL.QGLWidget):
         try:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
             glUseProgram(self.shader)
+
+            # Set the windowSize uniform variable
+            width, height = self.width(), self.height()  # get the current width and height
+            glUniform2f(self.windowSizeLocation, width, height)
+
             glBegin(GL_QUADS)
             glVertex2f(-1, -1)
             glVertex2f(1, -1)
@@ -45,5 +82,7 @@ class GLSLCanvasWidget(QtOpenGL.QGLWidget):
     def resizeGL(self, w, h):
         try:
             glViewport(0, 0, w, h)
+            self.update()
         except Exception:
             traceback.print_exc()
+

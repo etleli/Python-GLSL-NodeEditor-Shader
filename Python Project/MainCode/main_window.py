@@ -1,15 +1,12 @@
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-import sys, os
-
-from MainCode.nodes_drag_listbox import QDMDragListbox
 from nodeeditor.utils import loadStylesheets
-from nodeeditor.node_editor_window import NodeEditorWindow
-from nodeeditor.node_editor_widget import NodeEditorWidget
-from GLSLShader.glsl_canvas_widget import GLSLCanvasWidget
 
-class ShaderEditorWindow(QMainWindow):
+import os
+
+from MainCode.shader_editor__widget import ShaderEditorWindow
+
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -19,8 +16,9 @@ class ShaderEditorWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.createActions()
-        self.createMenus()
+        self.shaderEditorWindow = ShaderEditorWindow()
+
+        self.setCentralWidget(self.shaderEditorWindow)
 
         self.stylesheet_filename = os.path.join(os.path.dirname(__file__), "qss/nodeeditor.qss")
         loadStylesheets(
@@ -28,13 +26,8 @@ class ShaderEditorWindow(QMainWindow):
             self.stylesheet_filename
         )
 
-        self.createNodeEditorDock()
-        self.createNodesDock()
-        self.createGLSLCanvasDock()
-
-
-        # self.createActions()
-        # self.createMenus()
+        self.createActions()
+        self.createMenus()
         # self.createToolBars()
         # self.createStatusBar()
         # self.updateMenus()
@@ -123,31 +116,3 @@ class ShaderEditorWindow(QMainWindow):
         #     self.actRedo.setEnabled(hasMdiChild and active.canRedo())
         # except Exception as e: dumpException(e)
         pass
-
-    def createNodesDock(self):
-        self.nodesListWidget = QDMDragListbox()
-
-        self.nodesDock = QDockWidget("Shader Nodes")
-        self.nodesDock.setWidget(self.nodesListWidget)
-        self.nodesDock.setFloating(False)
-
-        self.addDockWidget(Qt.RightDockWidgetArea, self.nodesDock)
-
-    def createNodeEditorDock(self):
-        self.nodesEditorWidget = NodeEditorWidget()
-
-        self.nodesEditorDock = QDockWidget("Shader Editor")
-        self.nodesEditorDock.setWidget(self.nodesEditorWidget)
-        self.nodesEditorDock.setFloating(False)
-
-        self.addDockWidget(Qt.LeftDockWidgetArea, self.nodesEditorDock)
-
-    def createGLSLCanvasDock(self):
-        self.glslCanvasWidget = GLSLCanvasWidget()
-        self.glslCanvasWidget.setMinimumHeight(200)
-
-        self.glslCanvasDock = QDockWidget("Shader Output")
-        self.glslCanvasDock.setWidget(self.glslCanvasWidget)
-        self.glslCanvasDock.setFloating(False)
-
-        self.addDockWidget(Qt.TopDockWidgetArea, self.glslCanvasDock)
