@@ -4,33 +4,43 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 import sys
 
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPalette
+
 
 class GLSLCanvasWidget(QtOpenGL.QGLWidget):
     def __init__(self, parent=None):
         super(GLSLCanvasWidget, self).__init__(parent)
-        self.aspect_ratio = 1.0
+        # self.width = 180
+        # self.height = 240
 
-
-
-    def setCanvasSize(self, width, height):
-        self.aspect_ratio = width / height
-        self.updateGeometry()
-
-    def sizeHint(self):
-        # Override sizeHint to return a size that maintains the aspect ratio
-        width = super(GLSLCanvasWidget, self).sizeHint().width()
-        height = int(width / self.aspect_ratio)
-        return QtCore.QSize(width, height)
-
-    def resizeEvent(self, event):
-        size = event.size()
-        if size.height() != 0:
-            if size.width() / size.height() > self.aspect_ratio:
-                size.setWidth(int(size.height() * self.aspect_ratio))
-            else:
-                size.setHeight(int(size.width() / self.aspect_ratio))
-        self.resize(size)
-        super().resizeEvent(event)
+        # self.width = 180
+        # self.height = 240
+    # def __init__(self, parent=None):
+    #     super(GLSLCanvasWidget, self).__init__(parent)
+    #     self.aspect_ratio = 1.0
+    #
+    #
+    #
+    # def setCanvasSize(self, width, height):
+    #     self.aspect_ratio = width / height
+    #     self.updateGeometry()
+    #
+    # def sizeHint(self):
+    #     # Override sizeHint to return a size that maintains the aspect ratio
+    #     width = super(GLSLCanvasWidget, self).sizeHint().width()
+    #     height = int(width / self.aspect_ratio)
+    #     return QtCore.QSize(width, height)
+    #
+    # def resizeEvent(self, event):
+    #     size = event.size()
+    #     if size.height() != 0:
+    #         if size.width() / size.height() > self.aspect_ratio:
+    #             size.setWidth(int(size.height() * self.aspect_ratio))
+    #         else:
+    #             size.setHeight(int(size.width() / self.aspect_ratio))
+    #     self.resize(size)
+    #     super().resizeEvent(event)
 
     def initializeGL(self):
         try:
