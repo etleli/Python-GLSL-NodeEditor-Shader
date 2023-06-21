@@ -1,10 +1,11 @@
+from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from nodeeditor.utils import loadStylesheets
 
 import os
 
-from MainCode.shader_editor__widget import ShaderEditorWindow
+from MainCode.shader_editor_widget import ShaderEditorWindow
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -12,6 +13,10 @@ class MainWindow(QMainWindow):
 
         self.name_company = 'AlpHive'
         self.name_product = 'GLSL Node Shader'
+
+        self.settings = QSettings(self.name_company, self.name_product)
+        self.restoreGeometry(self.settings.value("geometry", QByteArray()))
+        self.restoreState(self.settings.value("windowState", QByteArray()))
 
         self.initUI()
 
@@ -39,6 +44,8 @@ class MainWindow(QMainWindow):
         self.empty_icon = QIcon(".")
 
     def closeEvent(self, event):
+        self.settings.setValue("geometry", self.saveGeometry())
+        self.settings.setValue("windowState", self.saveState())
         event.accept()
         import sys
         sys.exit(0)

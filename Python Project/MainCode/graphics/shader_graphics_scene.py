@@ -17,7 +17,7 @@ class QSDGraphicsScene(QGraphicsScene):
 
         self._pen_light = QPen(self._color_light)
         self._pen_light.setWidth(1)
-        self.scene_width, self.scene_height = 2000, 2000
+        self.scene_width, self.scene_height = 64000, 64000
 
         self.setSceneRect(-self.scene_width//2, -self.scene_height//2, self.scene_width, self.scene_height)
 

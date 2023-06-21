@@ -1,98 +1,101 @@
-from PyQt5 import QtWidgets, QtOpenGL, QtCore
-from OpenGL.GL import shaders
-from OpenGL.GL import *
-from OpenGL.GLUT import *
-import sys
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPalette
+from GLSLShader.glsl_canvas import GLSLCanvas
 
 
-class GLSLCanvasWidget(QtOpenGL.QGLWidget):
-    def __init__(self, parent=None):
-        super(GLSLCanvasWidget, self).__init__(parent)
-        # self.width = 180
-        # self.height = 240
+# class GLSLCanvasWidget(QWidget):
+#
+#     def __init__(self, width, height, parent: QWidget = None):
+#         super().__init__(parent)
+#
+#         self.width = width
+#         self.height = height
+#
+#         self.layout = QVBoxLayout(self)
+#
+#         self.initContent()
+#
+#         self.setLayout(self.layout)
+#
+#     def initContent(self):
+#         self.canvasWidget = GLSLCanvas()
+#         self.layout.addWidget(self.canvasWidget)
+#
+#     def boundingRect(self) -> QRectF:
+#         return QRectF(
+#             0,
+#             0,
+#             self.width,
+#             self.height
+#         ).normalized()
+#
+#     def paint(self, painter, option, widget):
+#         painter.setBrush(QBrush(QColor("#E3212121")))
+#         painter.drawRect(self.boundingRect())
+#
+#     def setSize(self, width, height):
+#         self.width = width
+#         self.height = height
+#         self.canvasWidget.resize(self.width, self.height)
 
-        # self.width = 180
-        # self.height = 240
-    # def __init__(self, parent=None):
-    #     super(GLSLCanvasWidget, self).__init__(parent)
-    #     self.aspect_ratio = 1.0
-    #
-    #
-    #
-    # def setCanvasSize(self, width, height):
-    #     self.aspect_ratio = width / height
-    #     self.updateGeometry()
-    #
-    # def sizeHint(self):
-    #     # Override sizeHint to return a size that maintains the aspect ratio
-    #     width = super(GLSLCanvasWidget, self).sizeHint().width()
-    #     height = int(width / self.aspect_ratio)
-    #     return QtCore.QSize(width, height)
-    #
-    # def resizeEvent(self, event):
-    #     size = event.size()
-    #     if size.height() != 0:
-    #         if size.width() / size.height() > self.aspect_ratio:
-    #             size.setWidth(int(size.height() * self.aspect_ratio))
-    #         else:
-    #             size.setHeight(int(size.width() / self.aspect_ratio))
-    #     self.resize(size)
-    #     super().resizeEvent(event)
+# class GLSLCanvasWidget(QGraphicsWidget):
+#
+#     def __init__(self, width, height, parent: QWidget = None):
+#         super().__init__(parent)
+#
+#         self.width = width
+#         self.height = height
+#
+#         self.initContent()
+#
+#     def initContent(self):
+#         self.canvasWidget = GLSLCanvas()
+#
+#         # Create a layout and add the GLSLCanvas to it
+#         layout = QVBoxLayout()
+#         layout.addWidget(self.canvasWidget)
+#
+#         # Set the layout on the GLSLCanvasWidget
+#         self.setLayout(layout)
+#
+#     def boundingRect(self) -> QRectF:
+#         return QRectF(
+#             0,
+#             0,
+#             self.width,
+#             self.height
+#         ).normalized()
+#
+#     def paint(self, painter, option, widget):
+#         painter.setBrush(QBrush(QColor("#E3212121")))
+#         painter.drawRect(self.boundingRect())
+#
+#     def setSize(self, width, height):
+#         self.width = width
+#         self.height = height
+#         self.canvasWidget.resize(self.width, self.height)
 
-    def initializeGL(self):
-        try:
-            VERTEX_SHADER = shaders.compileShader("""
-            #version 330
-            in vec2 position;
-            void main() {
-                gl_Position = vec4(position, 0.0, 1.0);
-            }
-            """, GL_VERTEX_SHADER)
+class GLSLCanvasItem(QGraphicsItem):
+    def __init__(self, width, height, canvas, parent=None):
+        super().__init__(parent)
+        self.canvas = canvas
+        self.width = width
+        self.height = height
 
-            FRAGMENT_SHADER = shaders.compileShader("""
-            #version 330
-            uniform vec2 windowSize;
-            out vec4 fragColor;
-            void main() {
-                vec2 normalizedCoords = gl_FragCoord.xy / windowSize;
-                fragColor = vec4(normalizedCoords.x, normalizedCoords.y, 0.5, 1.0);
-            }
+    def boundingRect(self) -> QRectF:
+        return QRectF(
+            0,
+            0,
+            self.width,
+            self.height
+        ).normalized()
 
-            """, GL_FRAGMENT_SHADER)
+    def paint(self, painter, option, widget):
+        if self.canvas is not None and self.canvas.image is not None:
+            painter.drawImage(0, 0, self.canvas.image)
 
-            self.shader = shaders.compileProgram(VERTEX_SHADER, FRAGMENT_SHADER)
-
-            # Get the location of the windowSize uniform variable
-            self.windowSizeLocation = glGetUniformLocation(self.shader, "windowSize")
-        except Exception:
-            traceback.print_exc()
-
-    def paintGL(self):
-        try:
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-            glUseProgram(self.shader)
-
-            # Set the windowSize uniform variable
-            width, height = self.width(), self.height()  # get the current width and height
-            glUniform2f(self.windowSizeLocation, width, height)
-
-            glBegin(GL_QUADS)
-            glVertex2f(-1, -1)
-            glVertex2f(1, -1)
-            glVertex2f(1, 1)
-            glVertex2f(-1, 1)
-            glEnd()
-            glUseProgram(0)
-        except Exception:
-            traceback.print_exc()
-
-    def resizeGL(self, w, h):
-        try:
-            glViewport(0, 0, w, h)
-            self.update()
-        except Exception:
-            traceback.print_exc()
-
+    def setSize(self, width, height):
+        self.width = width
+        self.height = height
