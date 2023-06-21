@@ -10,6 +10,8 @@ from MainCode.shader_output_view import ShaderOutputView
 from nodeeditor.node_editor_window import NodeEditorWindow
 from nodeeditor.node_editor_widget import NodeEditorWidget
 from GLSLShader.glsl_canvas_widget import GLSLCanvasItem
+from shader_canvas_settings import ShaderCanvasSettings
+
 
 class ShaderEditorWindow(QWidget):
     def __init__(self):
@@ -31,9 +33,12 @@ class ShaderEditorWindow(QWidget):
             self.vSplitter = QSplitter(Qt.Vertical)
 
             # Create a hSplitter
-            self.hSplitter = QSplitter()
+            self.hSplitter1 = QSplitter()
+            self.hSplitter2 = QSplitter()
 
             # Prepare Widgets
+
+            # Shader Nodes Library
             self.nodesListWidget = QDMDragListbox()
 
             self.shaderNodesQBox = QGroupBox("Shader Nodes")
@@ -41,6 +46,7 @@ class ShaderEditorWindow(QWidget):
             self.shaderNodesQBox.setLayout(QVBoxLayout())
             self.shaderNodesQBox.layout().addWidget(self.nodesListWidget)
 
+            # Shader Editor
             self.nodesEditorWidget = NodeEditorWidget()
 
             self.shaderEditorQBox = QGroupBox("Shader Editor")
@@ -48,23 +54,46 @@ class ShaderEditorWindow(QWidget):
             self.shaderEditorQBox.setLayout(QVBoxLayout())
             self.shaderEditorQBox.layout().addWidget(self.nodesEditorWidget)
 
+            # Coding Textbox
+            self.codingTextbox = QTextEdit()
+
+            self.codingTextboxQBox = QGroupBox("Code Editor")
+            self.codingTextboxQBox.setFont(QFont(self.font, self.fontSize))
+            self.codingTextboxQBox.setLayout(QVBoxLayout())
+            self.codingTextboxQBox.layout().addWidget(self.codingTextbox)
+
+            # Shader Output
             self.glslCanvasViewWidget = ShaderOutputView()
 
             self.shaderOutputQBox = QGroupBox("Shader Output")
             self.shaderOutputQBox.setFont(QFont(self.font, self.fontSize))
-            shaderOutputLayout = QVBoxLayout()
+            self.shaderOutputQBox.setLayout(QVBoxLayout())
+            self.shaderOutputQBox.layout().addWidget(self.glslCanvasViewWidget)
 
-            shaderOutputLayout.addWidget(self.glslCanvasViewWidget)
+            # Shader Canvas Settings
+            self.glslCanvasSettings = ShaderCanvasSettings(self.glslCanvasViewWidget)
 
-            self.shaderOutputQBox.setLayout(shaderOutputLayout)
+            self.shaderSettingsQBox = QGroupBox("Canvas Settings")
+            self.shaderSettingsQBox.setFont(QFont(self.font, self.fontSize))
+            self.shaderSettingsQBox.setLayout(QVBoxLayout())
+            self.shaderSettingsQBox.layout().addWidget(self.glslCanvasSettings)
 
-            # Add Widgets to Splitter
-            self.vSplitter.addWidget(self.shaderOutputQBox)
-            self.hSplitter.addWidget(self.shaderEditorQBox)
-            self.hSplitter.addWidget(self.shaderNodesQBox)
+            # Shader Output Splitter
+            self.hSplitter2.addWidget(self.shaderOutputQBox)
+            self.hSplitter2.addWidget(self.shaderSettingsQBox)
+
+            # Shader Editor Splitter
+            self.hSplitter1.addWidget(self.shaderEditorQBox)
+            self.hSplitter1.addWidget(self.shaderNodesQBox)
+
+            # Tab Widget
+            self.tabWidget = QTabWidget()
+            self.tabWidget.addTab(self.hSplitter1, "Node Editor")
+            self.tabWidget.addTab(self.codingTextboxQBox, "Coding Textbox")
 
             # Add hSplitter to vSplitter
-            self.vSplitter.addWidget(self.hSplitter)
+            self.vSplitter.addWidget(self.hSplitter2)
+            self.vSplitter.addWidget(self.tabWidget)
 
             # Set Size
             self.vSplitter.setSizes([100, 200])

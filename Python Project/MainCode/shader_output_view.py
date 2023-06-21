@@ -17,7 +17,6 @@ class ShaderOutputView(QWidget):
         self.setLayout(self.layout)
 
         self.canvas = GLSLCanvas()
-        self.canvas.setFixedSize(1920, 1080)
 
         self.scene = QSDGraphicsScene()
         self.scene.addWidget(self.canvas)
@@ -26,6 +25,8 @@ class ShaderOutputView(QWidget):
 
         self.layout.addWidget(self.view)
 
+    def setSize(self, width, height):
+        self.canvas.setFixedSize(width, height)
 
 
 

@@ -3,8 +3,9 @@ from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
 
 class GLSLCanvas(QOpenGLWidget):
-    def initializeGL(self):
-        VERTEX_SHADER = """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.vertex_shader_source = """
         #version 330
         in vec2 position;
         void main() {
@@ -12,7 +13,7 @@ class GLSLCanvas(QOpenGLWidget):
         }
         """
 
-        FRAGMENT_SHADER = """
+        self.fragment_shader_source = """
         #version 330
         uniform vec2 windowSize;
         out vec4 fragColor;
@@ -22,11 +23,14 @@ class GLSLCanvas(QOpenGLWidget):
         }
         """
 
-        self.shader = compileProgram(
-            compileShader(VERTEX_SHADER, GL_VERTEX_SHADER),
-            compileShader(FRAGMENT_SHADER, GL_FRAGMENT_SHADER)
-        )
+    def initializeGL(self):
+        self.compile_shaders()
 
+    def compile_shaders(self):
+        self.shader = compileProgram(
+            compileShader(self.vertex_shader_source, GL_VERTEX_SHADER),
+            compileShader(self.fragment_shader_source, GL_FRAGMENT_SHADER)
+        )
         self.windowSizeLocation = glGetUniformLocation(self.shader, "windowSize")
 
     def paintGL(self):
@@ -47,4 +51,15 @@ class GLSLCanvas(QOpenGLWidget):
 
     def resizeGL(self, w, h):
         glViewport(0, 0, w, h)
+
+    def set_vertex_shader(self, code):
+        self.vertex_shader_source = code
+        self.compile_shaders()
+        self.update()
+
+    def set_fragment_shader(self, code):
+        self.fragment_shader_source = code
+        self.compile_shaders()
+        self.update()
+
 
