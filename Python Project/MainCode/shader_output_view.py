@@ -6,8 +6,10 @@ from MainCode.graphics.shader_graphics_scene import QSDGraphicsScene
 
 
 class ShaderOutputView(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, shaderEditorWindow, parent=None):
         super().__init__(parent)
+
+        self.shaderEditorWindow = shaderEditorWindow
 
         self.initUI()
 
@@ -16,7 +18,7 @@ class ShaderOutputView(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
 
-        self.canvas = GLSLCanvas()
+        self.canvas = GLSLCanvas(self.shaderEditorWindow)
 
         self.scene = QSDGraphicsScene()
         self.scene.addWidget(self.canvas)
@@ -27,6 +29,9 @@ class ShaderOutputView(QWidget):
 
     def setSize(self, width, height):
         self.canvas.setFixedSize(width, height)
+
+    def updateFragmentShader(self, code):
+        self.canvas.set_fragment_shader(code)
 
 
 

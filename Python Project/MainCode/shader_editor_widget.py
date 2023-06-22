@@ -3,14 +3,13 @@ import traceback
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-import sys, os
 
 from MainCode.nodes_drag_listbox import QDMDragListbox
+from MainCode.shader_code_editor import ShaderCodeEditor
+from MainCode.shader_code_editor_tools import CodeEditorTools
 from MainCode.shader_output_view import ShaderOutputView
-from nodeeditor.node_editor_window import NodeEditorWindow
 from nodeeditor.node_editor_widget import NodeEditorWidget
-from GLSLShader.glsl_canvas_widget import GLSLCanvasItem
-from shader_canvas_settings import ShaderCanvasSettings
+from MainCode.shader_canvas_settings import ShaderCanvasSettings
 
 
 class ShaderEditorWindow(QWidget):
@@ -35,6 +34,7 @@ class ShaderEditorWindow(QWidget):
             # Create a hSplitter
             self.hSplitter1 = QSplitter()
             self.hSplitter2 = QSplitter()
+            self.hSplitter3 = QSplitter()
 
             # Prepare Widgets
 
@@ -55,23 +55,31 @@ class ShaderEditorWindow(QWidget):
             self.shaderEditorQBox.layout().addWidget(self.nodesEditorWidget)
 
             # Coding Textbox
-            self.codingTextbox = QTextEdit()
+            self.codingTextbox = ShaderCodeEditor()
 
             self.codingTextboxQBox = QGroupBox("Code Editor")
             self.codingTextboxQBox.setFont(QFont(self.font, self.fontSize))
             self.codingTextboxQBox.setLayout(QVBoxLayout())
             self.codingTextboxQBox.layout().addWidget(self.codingTextbox)
 
+            # Coding Tools
+            self.codingTools = CodeEditorTools(self)
+
+            self.codingToolsQBox = QGroupBox("Code Tools")
+            self.codingToolsQBox.setFont(QFont(self.font, self.fontSize))
+            self.codingToolsQBox.setLayout(QVBoxLayout())
+            self.codingToolsQBox.layout().addWidget(self.codingTools)
+
             # Shader Output
-            self.glslCanvasViewWidget = ShaderOutputView()
+            self.shaderOutputViewWidget = ShaderOutputView(self)
 
             self.shaderOutputQBox = QGroupBox("Shader Output")
             self.shaderOutputQBox.setFont(QFont(self.font, self.fontSize))
             self.shaderOutputQBox.setLayout(QVBoxLayout())
-            self.shaderOutputQBox.layout().addWidget(self.glslCanvasViewWidget)
+            self.shaderOutputQBox.layout().addWidget(self.shaderOutputViewWidget)
 
             # Shader Canvas Settings
-            self.glslCanvasSettings = ShaderCanvasSettings(self.glslCanvasViewWidget)
+            self.glslCanvasSettings = ShaderCanvasSettings(self.shaderOutputViewWidget)
 
             self.shaderSettingsQBox = QGroupBox("Canvas Settings")
             self.shaderSettingsQBox.setFont(QFont(self.font, self.fontSize))
@@ -86,10 +94,15 @@ class ShaderEditorWindow(QWidget):
             self.hSplitter1.addWidget(self.shaderEditorQBox)
             self.hSplitter1.addWidget(self.shaderNodesQBox)
 
+            # Code Editor Splitter
+            self.hSplitter3.addWidget(self.codingTextboxQBox)
+            self.hSplitter3.addWidget(self.codingToolsQBox)
+            self.hSplitter3.setSizes([500, 100])
+
             # Tab Widget
             self.tabWidget = QTabWidget()
             self.tabWidget.addTab(self.hSplitter1, "Node Editor")
-            self.tabWidget.addTab(self.codingTextboxQBox, "Coding Textbox")
+            self.tabWidget.addTab(self.hSplitter3, "Coding Textbox")
 
             # Add hSplitter to vSplitter
             self.vSplitter.addWidget(self.hSplitter2)
@@ -105,3 +118,18 @@ class ShaderEditorWindow(QWidget):
         except Exception as e:
             traceback.print_exc()
             print(e)
+
+    def runCode(self):
+        self.shaderOutputViewWidget.canvas.set_fragment_shader(self.codingTextbox.getPlainCodeString())
+        self.updateCanvas()
+
+
+    def resetCode(self):
+        print("Reset Code...")
+
+    def updateCanvas(self):
+        # trigger canvas repaint when new code is run
+        self.shaderOutputViewWidget.setSize(self.shaderOutputViewWidget.canvas.width() + 1,
+                                            self.shaderOutputViewWidget.canvas.height() + 1)
+        self.shaderOutputViewWidget.setSize(self.shaderOutputViewWidget.canvas.width() - 1,
+                                            self.shaderOutputViewWidget.canvas.height() - 1)

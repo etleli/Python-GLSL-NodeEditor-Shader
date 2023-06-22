@@ -15,7 +15,7 @@ class QSMGraphicsView(QGraphicsView):
         self.zoomClamp = True
         self.zoom = 10
         self.zoomStep = 1
-        self.zoomRange = [0, 10]
+        self.zoomRange = [0, 100]
 
     def initUI(self):
         self.setRenderHints(
